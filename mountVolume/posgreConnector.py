@@ -1,9 +1,9 @@
 import psycopg2
 import os
 import random
+import sqlInterface
 
-
-class postgres_connecter:
+class postgres_connecter(sqlInterface.SQLInterface):
     def __init__(self, database, user, password, host, port):
         self._database = database
         self._user = user
