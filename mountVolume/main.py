@@ -22,13 +22,20 @@ class postgres_connecter:
         )
         return connection
 
-    def select(self, *target, table): #安全ではない！SQLインジェクションでボコられます
+    def select(self, *target, table, where): #安全ではない！SQLインジェクションでボコられます
         if len(target) == 0 or table == "":
             return
         sql = ["SELECT"]
         sql.append(" ,".join(target))
         sql.append("FROM")
-        sql.append(table)
+        sql.append(", ".join(table))
+        if where != None and len(where) == 2:
+            sql.append("WHERE ")
+            sql.append("=".join(where))
+        elif where != None and len(where) == 3:
+            sql.append("WHERE ")
+            sql.append(where[2].join(where[0:2]))
+
         sql.append(";")
         query = " ".join(sql)
 
@@ -81,7 +88,7 @@ if __name__ == "__main__":
         5432
     )
 
-    rows = con.select("city", "temp_lo", "prcp", "date", table = "weather")    
+    rows = con.select("city", "temp_lo", "prcp", "date", table = ["weather"], where = ("city", "'Nagoya'", "="))    
     for row in rows:
         print(row)
 
