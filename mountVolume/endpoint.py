@@ -1,25 +1,52 @@
 from flask import Flask, request
-from exec_scripts import dialog
+import sqlInterface
 
 app = Flask(__name__)
-serverExec = dialog.serverExec()
+serverExec = sqlInterface.SQLInterface()
 
-@app.route('/', methods=['POST'])
-def conversation():
+@app.route('/select/', methods=['POST'])
+def select():
+    print("on select!!!")
+    payload = request.json
+    print("name = " + str(payload))
+    print("name type = " + str(type(payload)))
+
+    rows = serverExec.select(
+        payload['target'],
+        payload['table'],
+        payload['where']
+        )
+
+    for row in rows:
+        print(row)
+
+    return str(rows)
+
+
+@app.route('/insert/', methods=['POST'])
+def insert():
         
     payload = request.json
-    line = payload
- #    line = payload.get('request')
-    print("name = " + str(line))
-    print("name type = " + str(type(line)))
+    print("name = " + str(payload))
+    print("name type = " + str(type(payload)))
 
-    ret = serverExec.main(line)
-    print("ret =" + str(ret))
-    return ret
+
+    try:
+        serverExec.insert(
+            payload['data'],
+            payload['table']
+            )
+
+        return "success to add data" + str(payload)
+    except Exception as e:
+        return "error:" + str(e)
+
+    
 
 
 if __name__ == "__main__":
 
 
-    app.run(host='0.0.0.0')
+    app.run(host='127.0.0.1')
+
 

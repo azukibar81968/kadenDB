@@ -12,10 +12,10 @@ class SQLInterface:
         )
 
 
-    def select(self, *target, table, where): 
+    def select(self, target, table, where): 
         return self._con.select(target, table = table, where = where)
 
-    def insert(self, *data, table):
+    def insert(self, data, table):
         self._con.insert(data,table = table)
         return
 
