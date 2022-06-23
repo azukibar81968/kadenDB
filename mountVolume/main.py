@@ -1,21 +1,95 @@
 import psycopg2
 import os
+import random
 
-def get_connection():
-    connection = psycopg2.connect(
-        database = 'postgres',
-        user = 'postgres',
-        password='passw0rd',
-        host='0.0.0.0',
-        port = 5432
+
+class postgres_connecter:
+    def __init__(self, database, user, password, host, port):
+        self._database = database
+        self._user = user
+        self._password = password
+        self._host = host
+        self._port = port
+
+    def _getConnection(self):
+
+        connection = psycopg2.connect(
+            database = self._database,
+            user = self._user,
+            password = self._password,
+            host = self._host,
+            port = self._port
+        )
+        return connection
+
+    def select(self, *target, table): #安全ではない！SQLインジェクションでボコられます
+        if len(target) == 0 or table == "":
+            return
+        sql = ["SELECT"]
+        sql.append(" ,".join(target))
+        sql.append("FROM")
+        sql.append(table)
+        sql.append(";")
+        query = " ".join(sql)
+
+        rows = []
+        #print("query = " + query)
+        with self._getConnection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                rows = cursor.fetchall()
+
+        return rows
+
+    def insert(self, *data, table):#安全ではない！SQLインジェクションでボコられます
+        if len(table) == 0 or table == "":
+            return
+        
+        key = []
+        value = []
+        for t in data:
+            key.append(t[0])
+            value.append(t[1])
+        key_joined = ", ".join(key)
+        value_joined = ", ".join(value)
+        
+        sql = ["INSERT", "INTO"]
+        sql.append(table)
+        sql.append("(")
+        sql.append(key_joined)
+        sql.append(") VALUES (")
+        sql.append(value_joined)
+        sql.append(");")
+        query = " ".join(sql)
+
+        print("query = " + query)   
+        with self._getConnection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+            conn.commit()
+
+
+
+if __name__ == "__main__":
+
+
+    con = postgres_connecter(
+        'postgres',
+        'postgres',
+        'passw0rd',
+        '0.0.0.0',
+        5432
     )
-    return connection
 
-conn = get_connection()
-cursor = conn.cursor()
+    rows = con.select("city", "temp_lo", "prcp", "date", table = "weather")    
+    for row in rows:
+        print(row)
 
-sql = """select * from weather;"""
-cursor.execute(sql)
-rows = cursor.fetchall()
-for row in rows:
-    print(row)
+    con.insert(
+        ("city" , "'Nagoya'"),
+        ("temp_lo" , str(40)),
+        ("temp_hi", str(40 + 30*random.random())),
+        ("prcp", str(random.random())),
+        ("date", "'1999-11-30'"),
+        table = "weather"
+    )
