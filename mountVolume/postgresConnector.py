@@ -1,9 +1,8 @@
 import psycopg2
 import os
 import random
-import sqlInterface
 
-class postgres_connecter(sqlInterface.SQLInterface):
+class postgres_connecter:
     def __init__(self, database, user, password, host, port):
         self._database = database
         self._user = user
@@ -22,7 +21,7 @@ class postgres_connecter(sqlInterface.SQLInterface):
         )
         return connection
 
-    def select(self, *target, table, where): #安全ではない！SQLインジェクションでボコられます
+    def select(self, target, table, where): #安全ではない！SQLインジェクションでボコられます
         if len(target) == 0 or table == "":
             return
         sql = ["SELECT"]
@@ -48,7 +47,7 @@ class postgres_connecter(sqlInterface.SQLInterface):
 
         return rows
 
-    def insert(self, *data, table):#安全ではない！SQLインジェクションでボコられます
+    def insert(self, data, table):#安全ではない！SQLインジェクションでボコられます
         if len(table) == 0 or table == "":
             return
         
