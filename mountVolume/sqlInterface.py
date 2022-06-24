@@ -8,7 +8,6 @@ class SQLInterface:
             'postgres',
             'passw0rd',
             '0.0.0.0',
-            5432
         )
 
 

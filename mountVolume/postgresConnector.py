@@ -3,12 +3,12 @@ import os
 import random
 
 class postgres_connecter:
-    def __init__(self, database, user, password, host, port):
+    def __init__(self, database, user, password, host):
         self._database = database
         self._user = user
         self._password = password
         self._host = host
-        self._port = port
+        self._port = os.environ["PORT"]
 
     def _getConnection(self):
 
@@ -84,7 +84,6 @@ if __name__ == "__main__":
         'postgres',
         'passw0rd',
         '0.0.0.0',
-        5432
     )
 
     rows = con.select("city", "temp_lo", "prcp", "date", table = ["weather"], where = ("city", "'Nagoya'", "="))    

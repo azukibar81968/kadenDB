@@ -12,6 +12,7 @@ services:
       - db-store:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=passw0rd
+      - PORT=5432
     user: "root"
 volumes:
   db-store:
